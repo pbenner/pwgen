@@ -1,0 +1,107 @@
+#! /usr/bin/env python
+
+# Copyright (C) 2014 Philipp Benner
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+import ConfigParser
+import getopt
+import getpass
+import pwgen
+import pyperclip
+import sys
+
+# global options
+# ------------------------------------------------------------------------------
+
+options = {
+    'domain'    : "",
+    'length'    : 20,
+    'seed_init' : 0x8f2729ba,
+    'username'  : "",
+    'verbose'   : False,
+    }
+
+# usage
+# ------------------------------------------------------------------------------
+
+def usage():
+    """Print usage."""
+    print
+    print "tfbayes-cluster [option]... DOMAIN"
+    print
+    print "Options:"
+    print "   -l, --length integer           - export reverse complement"
+    print "   -u, --username string          - username (optional)"
+    print "   -s, --seed-init integer        - initial seed"
+    print
+    print "   -h, --help                     - print help"
+    print "   -v, --verbose                  - be verbose"
+    print
+
+# generate password
+# ------------------------------------------------------------------------------
+
+def generate_password():
+    key    = getpass.getpass()
+    seed   = options['seed_init']
+    length = options['length']
+    if options['username']:
+        domain = '{0}@{1}'.format(options['username'], options['domain'])
+    else:
+        domain = options['domain']
+
+    password = pwgen.generate_password(seed, key, domain, length)
+    pyperclip.copy(password)
+
+    print password
+
+# __main__
+# ------------------------------------------------------------------------------
+
+def __main__():
+    global options
+    try:
+        longopts   = ["length=", "username=", "seed-init=", "help", "verbose"]
+        opts, tail = getopt.getopt(sys.argv[1:], "l:u:s:", longopts)
+    except getopt.GetoptError:
+        usage()
+        return 2
+    output = None
+    for o, a in opts:
+        if o in ("-l", "--length"):
+            options['length'] = int(a)
+        if o in ("-u", "--username"):
+            options['username'] = a
+        if o in ("-s", "--seed-init"):
+            options['username'] = int(a)
+        if o in ("-v", "--verbose"):
+            sys.stderr.write("Verbose mode turned on.\n")
+            options["verbose"] = True
+        if o in ("-h", "--help"):
+            usage()
+            return 0
+    if not len(tail) is 1:
+        usage()
+        return 1
+    options['domain'] = tail[0]
+    generate_password()
+
+if __name__ == "__main__":
+    try:
+        sys.exit(__main__())
+    except IOError, e:
+        sys.stderr.write('%s\n' % e)
+        sys.exit(1)

@@ -1,6 +1,6 @@
 [1]dnl -- configure.ac --
 dnl
-dnl Copyright (C) 2010-2013 Philipp Benner
+dnl Copyright (C) 2010-2014 Philipp Benner
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ AM_PROG_CC_C_O
 AC_PROG_LN_S
 AM_PROG_LEX
 AC_PROG_YACC
+AC_PROG_LIBTOOL
 LT_INIT
 LT_PATH_LD
 
@@ -51,10 +52,19 @@ AC_SUBST([PACKAGE_LICENSE], ["GPL"])
 AC_SUBST([PACKAGE_DESCRIPTION], [""])
 
 dnl ,---------------------------- 
+dnl | PYTHON
+dnl `----------------------------
+
+AM_PATH_PYTHON(2.5)
+AC_PYTHON_DEVEL
+
+dnl ,---------------------------- 
 dnl | BOOST
 dnl `----------------------------
 
 AX_BOOST_BASE([1.47.0],,
+  AC_MSG_ERROR([this library is required]))
+AX_BOOST_PYTHON(,
   AC_MSG_ERROR([this library is required]))
 
 dnl ,---------------------------- 
@@ -110,7 +120,6 @@ AX_CXXFLAGS_GCC_OPTION([-Wwrite-strings])
 AX_CXXFLAGS_GCC_OPTION([-Wstrict-prototypes])
 AX_CXXFLAGS_GCC_OPTION([-Wno-trigraphs])
 AX_CXXFLAGS_GCC_OPTION([-Wtrampolines])
-#AX_CXXFLAGS_GCC_OPTION([-fPIC])
 AX_CXXFLAGS_GCC_OPTION([-fno-nested-functions])
 AX_CXXFLAGS_GCC_OPTION([-fomit-frame-pointer])
 AX_CXXFLAGS_GCC_OPTION([-fvisibility-inlines-hidden])
