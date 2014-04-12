@@ -16,7 +16,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <tfbayes/config.h>
+#include <config.h>
 #endif /* HAVE_CONFIG_H */
 
 #include <iostream>
