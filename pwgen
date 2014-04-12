@@ -22,17 +22,19 @@ import getpass
 import pwgen
 import pyperclip
 import os
+import re
 import sys
 
 # global options
 # ------------------------------------------------------------------------------
 
 options = {
-    'domain'    : "",
-    'length'    : 20,
-    'seed_init' : 0,
-    'username'  : "",
-    'verbose'   : False,
+    'alias_list' : [],
+    'domain'     : "",
+    'length'     : 20,
+    'seed_init'  : 0,
+    'username'   : "",
+    'verbose'    : False
     }
 
 # usage
@@ -62,13 +64,18 @@ def read_config():
         raise IOError("Error: no configuration file found.")
     if config_parser.has_option('PWGEN', 'seed-init'):
         options['seed_init'] = int(config_parser.get('PWGEN', 'seed-init'))
-
+    if config_parser.has_option('PWGEN', 'alias'):
+        alias_list = config_parser.get('PWGEN', 'alias')
+        for alias in alias_list.split('\n'):
+            alias = alias.strip().split(' ')
+            if len(alias) != 2:
+                raise IOError("Invalid alias list in configuration file.")
+            options['alias_list'].append(alias)
 
 # generate password
 # ------------------------------------------------------------------------------
 
 def generate_password():
-    key    = getpass.getpass()
     seed   = options['seed_init']
     length = options['length']
     if options['username']:
@@ -76,6 +83,12 @@ def generate_password():
     else:
         domain = options['domain']
 
+    for alias in options['alias_list']:
+        domain = re.sub(alias[0], alias[1], domain)
+    if options['verbose']:
+        print "Domain:", domain
+
+    key = getpass.getpass()
     password = pwgen.generate_password(seed, key, domain, length)
     pyperclip.copy(password)
 
@@ -89,7 +102,7 @@ def __main__():
     read_config()
     try:
         longopts   = ["length=", "username=", "seed-init=", "help", "verbose"]
-        opts, tail = getopt.getopt(sys.argv[1:], "l:u:s:", longopts)
+        opts, tail = getopt.getopt(sys.argv[1:], "l:u:s:hv", longopts)
     except getopt.GetoptError:
         usage()
         return 2
@@ -102,7 +115,6 @@ def __main__():
         if o in ("-s", "--seed-init"):
             options['username'] = int(a)
         if o in ("-v", "--verbose"):
-            sys.stderr.write("Verbose mode turned on.\n")
             options["verbose"] = True
         if o in ("-h", "--help"):
             usage()
