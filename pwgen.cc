@@ -37,8 +37,12 @@ using namespace std;
 
 typedef struct _options_t {
         size_t length;
+        string domain;
+        string user;
         _options_t()
-                : length(20)
+                : length(20),
+                  domain(""),
+                  user("")
                 { }
 } options_t;
 
@@ -50,10 +54,11 @@ static options_t options;
 static
 void print_usage(char *pname, FILE *fp)
 {
-        (void)fprintf(fp, "\nUsage: %s [OPTION]\n\n", pname);
+        (void)fprintf(fp, "\nUsage: %s [OPTION] DOMAIN\n\n", pname);
         (void)fprintf(fp,
                       "Options:\n"
                       "   --length, -l integer       - length of the password\n"
+                      "   --user,   -u string        - username (optional)\n"
                       "\n"
                       "   --help                     - print help and exit\n"
                       "   --version                  - print version information and exit\n\n");
@@ -108,35 +113,25 @@ read_key(void)
         return input;
 }
 
-string
-read_domain(void)
-{
-        string input = "";
-        cout << "Domain: ";
-        
-        getline(cin, input);
-
-        return input;
-}
-
 size_t
-generate_seed(void)
+generate_seed()
 {
         uint64_t seed = SEED_INIT;
 
         string key = read_key();
-        string domain = read_domain();
 
         for (size_t i = 0; i < key.size(); i++)
                 hash_combine(seed, static_cast<uint64_t>(key[i]));
-        for (size_t i = 0; i < domain.size(); i++)
-                hash_combine(seed, static_cast<uint64_t>(domain[i]));
+        for (size_t i = 0; i < options.domain.size(); i++)
+                hash_combine(seed, static_cast<uint64_t>(options.domain[i]));
+        for (size_t i = 0; i < options.user.size(); i++)
+                hash_combine(seed, static_cast<uint64_t>(options.user[i]));
 
         return seed;
 }
 
 void
-generate_password(void)
+generate_password()
 {
         boost::uniform_int<> char_range(33, 126);
         boost::random::mt19937 gen;
@@ -160,11 +155,12 @@ main(int argc, char *argv[])
                 int c, option_index = 0;
                 static struct option long_options[] = {
                         { "length",          1, 0, 'l' },
+                        { "user",            1, 0, 'u' },
                         { "help",            0, 0, 'h' },
                         { "version",         0, 0, 'v' }
                 };
 
-                c = getopt_long(argc, argv, "l:hv",
+                c = getopt_long(argc, argv, "l:u:hv",
                                 long_options, &option_index);
 
                 if(c == -1) {
@@ -174,6 +170,9 @@ main(int argc, char *argv[])
                 switch(c) {
                 case 'l':
                         options.length = atoi(optarg);
+                        break;
+                case 'u':
+                        options.user = string(optarg);
                         break;
                 case 'h':
                         print_usage(argv[0], stdout);
@@ -186,10 +185,11 @@ main(int argc, char *argv[])
                         exit(EXIT_FAILURE);
                 }
         }
-        if(optind != argc) {
+        if(optind+1 != argc) {
                 wrong_usage("Wrong number of arguments.");
                 exit(EXIT_FAILURE);
         }
+        options.domain = string(argv[optind]);
         generate_password();
 
         return 0;
