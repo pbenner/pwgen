@@ -34,7 +34,27 @@
 #include <boost/random.hpp>
 
 using namespace std;
-using namespace boost::python;
+
+// alphabets
+////////////////////////////////////////////////////////////////////////////////
+
+static const char any[] =
+        "!\"#$%&'()*+,-./"
+        "0123456789"
+        ":;<=>?@"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "[\\]^_`"
+        "abcdefghijklmnopqrstuvwxyz"
+        "{|}~";
+static const char alpha[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+static const char numeric[] =
+        "0123456789";
+static const char alphanumeric[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
 
 // password generator
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,15 +78,37 @@ generate_seed(size_t seed_init, string key, string domain)
 }
 
 string
-generate_password(size_t seed_init, string key, string domain, size_t length)
+generate_password(size_t seed_init, string key, string domain, size_t length, string alphabet)
 {
-        boost::uniform_int<> char_range(33, 126);
+        const char *alphabet_ptr;
+
+        boost::uniform_int<> range;
+        if (alphabet == "any") {
+                range = boost::uniform_int<>(0, sizeof(any)-2);
+                alphabet_ptr = any;
+        }
+        else if (alphabet == "alpha") {
+                range = boost::uniform_int<>(0, sizeof(alpha)-2);
+                alphabet_ptr = alpha;
+        }
+        else if (alphabet == "numeric") {
+                range = boost::uniform_int<>(0, sizeof(numeric)-2);
+                alphabet_ptr = numeric;
+        }
+        else if (alphabet == "alphanumeric") {
+                range = boost::uniform_int<>(0, sizeof(alphanumeric)-2);
+                alphabet_ptr = alphanumeric;
+        }
+        else {
+                return "";
+        }
+
         boost::random::mt19937 gen;
         gen.seed(generate_seed(seed_init, key, domain));
         stringstream ss;
 
         for (uint32_t i = 0; i < length; i++) {
-                ss << static_cast<char>(char_range(gen));
+                ss << alphabet_ptr[range(gen)];
         }
         return ss.str();
 }
@@ -76,5 +118,5 @@ generate_password(size_t seed_init, string key, string domain, size_t length)
 
 BOOST_PYTHON_MODULE(pwgen)
 {
-        def("generate_password", generate_password);
+        boost::python::def("generate_password", generate_password);
 }

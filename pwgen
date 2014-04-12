@@ -29,6 +29,7 @@ import sys
 # ------------------------------------------------------------------------------
 
 options = {
+    'alphabet'   : "any",
     'alias_list' : [],
     'domain'     : "",
     'length'     : 20,
@@ -36,6 +37,9 @@ options = {
     'username'   : "",
     'verbose'    : False
     }
+
+def split(string, token):
+    return re.sub(' +', ' ', string.strip()).split(token)
 
 # usage
 # ------------------------------------------------------------------------------
@@ -46,6 +50,8 @@ def usage():
     print "tfbayes-cluster [option]... DOMAIN"
     print
     print "Options:"
+    print "   -a, --alphabet string          - alphabet for generating the password"
+    print "                                    (alpha, numeric, alphanumeric, any)"
     print "   -l, --length integer           - export reverse complement"
     print "   -u, --username string          - username (optional)"
     print "   -s, --seed-init integer        - initial seed"
@@ -67,17 +73,34 @@ def read_config():
     if config_parser.has_option('PWGEN', 'alias'):
         alias_list = config_parser.get('PWGEN', 'alias')
         for alias in alias_list.split('\n'):
-            alias = alias.strip().split(' ')
+            alias = split(alias, ' ')
             if len(alias) != 2:
                 raise IOError("Invalid alias list in configuration file.")
             options['alias_list'].append(alias)
+    if config_parser.has_option('PWGEN', 'length'):
+        length_list = config_parser.get('PWGEN', 'length')
+        for length in length_list.split('\n'):
+            length = split(length, ' ')
+            if len(length) != 2:
+                raise IOError("Invalid length list in configuration file.")
+            if options['domain'] == length[0]:
+                options['length'] = int(length[1])
+    if config_parser.has_option('PWGEN', 'alphabet'):
+        alphabet_list = config_parser.get('PWGEN', 'alphabet')
+        for alphabet in alphabet_list.split('\n'):
+            alphabet = split(alphabet, ' ')
+            if len(alphabet) != 2:
+                raise IOError("Invalid alphabet list in configuration file.")
+            if options['domain'] == alphabet[0]:
+                options['alphabet'] = alphabet[1]
 
 # generate password
 # ------------------------------------------------------------------------------
 
 def generate_password():
-    seed   = options['seed_init']
-    length = options['length']
+    alphabet = options['alphabet']
+    seed     = options['seed_init']
+    length   = options['length']
     if options['username']:
         domain = '{0}@{1}'.format(options['username'], options['domain'])
     else:
@@ -89,7 +112,7 @@ def generate_password():
         print "Domain:", domain
 
     key = getpass.getpass()
-    password = pwgen.generate_password(seed, key, domain, length)
+    password = pwgen.generate_password(seed, key, domain, length, alphabet)
     pyperclip.copy(password)
 
     print password
@@ -99,14 +122,28 @@ def generate_password():
 
 def __main__():
     global options
-    read_config()
     try:
-        longopts   = ["length=", "username=", "seed-init=", "help", "verbose"]
-        opts, tail = getopt.getopt(sys.argv[1:], "l:u:s:hv", longopts)
+        longopts   = ["alphabet=", "length=", "username=", "seed-init=", "help", "verbose"]
+        opts, tail = getopt.getopt(sys.argv[1:], "a:l:u:s:hv", longopts)
     except getopt.GetoptError:
         usage()
         return 2
     output = None
+    if not len(tail) is 1:
+        usage()
+        return 1
+    # the domain needs to be available before parsing the config file
+    domain = tail[0].split("@")
+    if len(domain) == 1:
+        options['domain'] = domain[0]
+    elif len(domain) == 2:
+        options['username'] = domain[0]
+        options['domain'  ] = domain[1]
+    else:
+        raise IOError("Invalid domain argument")
+    # parse config file before options
+    read_config()
+    # parse options and allow to overwrite config defaults
     for o, a in opts:
         if o in ("-l", "--length"):
             options['length'] = int(a)
@@ -119,10 +156,7 @@ def __main__():
         if o in ("-h", "--help"):
             usage()
             return 0
-    if not len(tail) is 1:
-        usage()
-        return 1
-    options['domain'] = tail[0]
+
     generate_password()
 
 if __name__ == "__main__":
