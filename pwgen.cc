@@ -28,6 +28,8 @@
 
 #include <boost/random.hpp>
 
+#define SEED_INIT 0x8f2729ba
+
 using namespace std;
 
 // options
@@ -120,7 +122,7 @@ read_domain(void)
 size_t
 generate_seed(void)
 {
-        uint64_t seed = 0;
+        uint64_t seed = SEED_INIT;
 
         string key = read_key();
         string domain = read_domain();
