@@ -33,8 +33,6 @@
 #include <boost/format.hpp>
 #include <boost/random.hpp>
 
-#define SEED_INIT 0x8f2729ba
-
 using namespace std;
 using namespace boost::python;
 

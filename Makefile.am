@@ -7,6 +7,9 @@ AM_CPPFLAGS = -I$(top_srcdir)
 ## scripts
 dist_bin_SCRIPTS = pwgen
 
+## override implicit rule
+pwgen: ;
+
 ## compile python files
 pkgpython_PYTHON = pyperclip.py
 
