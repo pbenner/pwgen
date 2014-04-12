@@ -26,6 +26,7 @@
 #include <inttypes.h>
 #include <getopt.h>
 
+#include <boost/format.hpp>
 #include <boost/random.hpp>
 
 #define SEED_INIT 0x8f2729ba
@@ -119,13 +120,16 @@ generate_seed()
         uint64_t seed = SEED_INIT;
 
         string key = read_key();
+        string domain = options.domain;
+
+        if (options.user != "") {
+                domain = (boost::format("%s@%s") % options.user % domain).str();
+        }
 
         for (size_t i = 0; i < key.size(); i++)
                 hash_combine(seed, static_cast<uint64_t>(key[i]));
-        for (size_t i = 0; i < options.domain.size(); i++)
-                hash_combine(seed, static_cast<uint64_t>(options.domain[i]));
-        for (size_t i = 0; i < options.user.size(); i++)
-                hash_combine(seed, static_cast<uint64_t>(options.user[i]));
+        for (size_t i = 0; i < domain.size(); i++)
+                hash_combine(seed, static_cast<uint64_t>(domain[i]));
 
         return seed;
 }
