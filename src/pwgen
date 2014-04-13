@@ -29,7 +29,6 @@ import sys
 
 options = {
     'alphabet'   : "any",
-    'alias_list' : [],
     'domain'     : "",
     'length'     : 20,
     'seed_init'  : 0,
@@ -75,7 +74,7 @@ def read_config():
             alias = split(alias, ' ')
             if len(alias) != 2:
                 raise IOError("Invalid alias list in configuration file.")
-            options['alias_list'].append(alias)
+            options['domain'] = re.sub(alias[0], alias[1], options['domain'])
     if config_parser.has_option('PWGEN', 'length'):
         length_list = config_parser.get('PWGEN', 'length')
         for length in length_list.split('\n'):
@@ -105,8 +104,6 @@ def generate_password():
     else:
         domain = options['domain']
 
-    for alias in options['alias_list']:
-        domain = re.sub(alias[0], alias[1], domain)
     if options['verbose']:
         print "Domain:", domain
 
