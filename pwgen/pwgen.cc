@@ -55,6 +55,11 @@ static const char alphanumeric[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
+static const char sunrise[] =
+        "$%&#()?!=[]<>*_+-.,:;"
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
 
 // password generator
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +103,10 @@ generate_password(size_t seed_init, string key, string domain, size_t length, st
         else if (alphabet == "alphanumeric") {
                 range = boost::uniform_int<>(0, sizeof(alphanumeric)-2);
                 alphabet_ptr = alphanumeric;
+        }
+        else if (alphabet == "sunrise") {
+                range = boost::uniform_int<>(0, sizeof(sunrise)-2);
+                alphabet_ptr = sunrise;
         }
         else {
                 return "";
