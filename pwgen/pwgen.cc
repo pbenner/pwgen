@@ -107,7 +107,7 @@ generate_password(size_t seed_init, string key, string domain, size_t length, st
         gen.seed(generate_seed(seed_init, key, domain));
         stringstream ss;
 
-        for (uint32_t i = 0; i < length; i++) {
+        for (size_t i = 0; i < length; i++) {
                 ss << alphabet_ptr[range(gen)];
         }
         return ss.str();
