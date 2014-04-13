@@ -131,6 +131,8 @@ dnl `----------------------------
 AC_CONFIG_HEADER([config.h:config.h.in])
 AC_CONFIG_FILES([
   Makefile
+  pwgen/Makefile
+  src/Makefile
   ])
 
 AC_OUTPUT
