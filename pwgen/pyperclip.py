@@ -123,40 +123,40 @@ def xselGetClipboard():
     return content
 
 
-copy  = lambda  : None
-paste = lambda x: None
+copy  = lambda x: None
+paste = lambda  : None
 
 if os.name == 'nt' or platform.system() == 'Windows':
     import ctypes
-    copy  = winGetClipboard
-    paste = winSetClipboard
+    copy  = winSetClipboard
+    paste = winGetClipboard
 elif os.name == 'mac' or platform.system() == 'Darwin':
-    copy  = macGetClipboard
-    paste = macSetClipboard
+    copy  = macSetClipboard
+    paste = macGetClipboard
 elif os.name == 'posix' or platform.system() == 'Linux':
     xclipExists = os.system('which xclip') == 0
     if xclipExists:
-        copy  = xclipGetClipboard
-        paste = xclipSetClipboard
+        copy  = xclipSetClipboard
+        paste = xclipGetClipboard
     else:
         xselExists = os.system('which xsel') == 0
         if xselExists:
-            copy  = xselGetClipboard
-            paste = xselSetClipboard
+            copy  = xselSetClipboard
+            paste = xselGetClipboard
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 import gtk
                 gtk.init_check()
-                copy  = gtkGetClipboard
-                paste = gtkSetClipboard
+                copy  = gtkSetClipboard
+                paste = gtkGetClipboard
         except:
             try:
                 import PyQt4.QtCore
                 import PyQt4.QtGui
                 app = QApplication([])
                 cb = PyQt4.QtGui.QApplication.clipboard()
-                copy  = qtGetClipboard
-                paste = qtSetClipboard
+                copy  = qtSetClipboard
+                paste = qtGetClipboard
             except:
                 pass
