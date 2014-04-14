@@ -123,7 +123,7 @@ def xselGetClipboard():
     return content
 
 
-copy  = lambda x: None
+copy  = lambda  : None
 paste = lambda x: None
 
 if os.name == 'nt' or platform.system() == 'Windows':
