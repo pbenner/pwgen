@@ -42,7 +42,9 @@
 # 1.2 Use the platform module to help determine OS.
 # 1.3 Changed ctypes.windll.user32.OpenClipboard(None) to ctypes.windll.user32.OpenClipboard(0), after some people ran into some TypeError
 
-import platform, os
+import os
+import platform
+import warnings
 
 def winGetClipboard():
     ctypes.windll.user32.OpenClipboard(0)
@@ -121,36 +123,40 @@ def xselGetClipboard():
     return content
 
 
+copy  = lambda x: None
+paste = lambda x: None
+
 if os.name == 'nt' or platform.system() == 'Windows':
     import ctypes
-    getcb = winGetClipboard
-    setcb = winSetClipboard
+    copy  = winGetClipboard
+    paste = winSetClipboard
 elif os.name == 'mac' or platform.system() == 'Darwin':
-    getcb = macGetClipboard
-    setcb = macSetClipboard
+    copy  = macGetClipboard
+    paste = macSetClipboard
 elif os.name == 'posix' or platform.system() == 'Linux':
     xclipExists = os.system('which xclip') == 0
     if xclipExists:
-        getcb = xclipGetClipboard
-        setcb = xclipSetClipboard
+        copy  = xclipGetClipboard
+        paste = xclipSetClipboard
     else:
         xselExists = os.system('which xsel') == 0
         if xselExists:
-            getcb = xselGetClipboard
-            setcb = xselSetClipboard
+            copy  = xselGetClipboard
+            paste = xselSetClipboard
         try:
-            import gtk
-            getcb = gtkGetClipboard
-            setcb = gtkSetClipboard
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                import gtk
+                gtk.init_check()
+                copy  = gtkGetClipboard
+                paste = gtkSetClipboard
         except:
             try:
                 import PyQt4.QtCore
                 import PyQt4.QtGui
                 app = QApplication([])
                 cb = PyQt4.QtGui.QApplication.clipboard()
-                getcb = qtGetClipboard
-                setcb = qtSetClipboard
+                copy  = qtGetClipboard
+                paste = qtSetClipboard
             except:
-                raise Exception('Pyperclip requires the gtk or PyQt4 module installed, or the xclip command.')
-copy = setcb
-paste = getcb
+                pass
