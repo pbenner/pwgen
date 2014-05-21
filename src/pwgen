@@ -83,7 +83,7 @@ def read_config():
                 if options['domain'] == seed[0]:
                     options['seed_init'] = int(seed[1])
             else:
-                raise IOError("Invalid length list in configuration file.")
+                raise IOError("Invalid seed list in configuration file.")
     if config_parser.has_option('PWGEN', 'length'):
         length_list = config_parser.get('PWGEN', 'length')
         for length in length_list.split('\n'):
