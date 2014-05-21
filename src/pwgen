@@ -66,8 +66,6 @@ def read_config():
     config_parser.read(os.path.expanduser("~/.pwgen.conf"))
     if not config_parser.has_section('PWGEN'):
         raise IOError("Error: no configuration file found.")
-    if config_parser.has_option('PWGEN', 'seed-init'):
-        options['seed_init'] = int(config_parser.get('PWGEN', 'seed-init'))
     if config_parser.has_option('PWGEN', 'alias'):
         alias_list = config_parser.get('PWGEN', 'alias')
         for alias in alias_list.split('\n'):
@@ -75,6 +73,17 @@ def read_config():
             if len(alias) != 2:
                 raise IOError("Invalid alias list in configuration file.")
             options['domain'] = re.sub(alias[0], alias[1], options['domain'])
+    if config_parser.has_option('PWGEN', 'seed-init'):
+        seed_list = config_parser.get('PWGEN', 'seed-init')
+        for seed in seed_list.split('\n'):
+            seed = split(seed, ' ')
+            if len(seed) == 1: # default seed
+                options['seed_init'] = int(seed[0])
+            elif len(seed) == 2: # specific seed
+                if options['domain'] == seed[0]:
+                    options['seed_init'] = int(seed[1])
+            else:
+                raise IOError("Invalid length list in configuration file.")
     if config_parser.has_option('PWGEN', 'length'):
         length_list = config_parser.get('PWGEN', 'length')
         for length in length_list.split('\n'):
