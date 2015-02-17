@@ -50,7 +50,7 @@ def usage():
     print "Options:"
     print "   -a, --alphabet string          - alphabet for generating the password"
     print "                                    (alpha, numeric, alphanumeric, any)"
-    print "   -l, --length integer           - export reverse complement"
+    print "   -l, --length integer           - length of the generated password"
     print "   -u, --username string          - username (optional)"
     print "   -s, --seed-init integer        - initial seed"
     print
