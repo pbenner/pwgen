@@ -150,6 +150,8 @@ def __main__():
     read_config()
     # parse options and allow to overwrite config defaults
     for o, a in opts:
+        if o in ("-a", "--alphabet"):
+            options['alphabet'] = a
         if o in ("-l", "--length"):
             options['length'] = int(a)
         if o in ("-u", "--username"):
