@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Copyright (C) 2014 Philipp Benner
 #
@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import ConfigParser
+import configparser
 import getopt
 import getpass
 import pwgen
@@ -44,25 +44,25 @@ def split(string, token):
 
 def usage():
     """Print usage."""
-    print
-    print "tfbayes-cluster [option]... DOMAIN"
-    print
-    print "Options:"
-    print "   -a, --alphabet string          - alphabet for generating the password"
-    print "                                    (alpha, numeric, alphanumeric, any)"
-    print "   -l, --length integer           - length of the generated password"
-    print "   -u, --username string          - username (optional)"
-    print "   -s, --seed-init integer        - initial seed"
-    print
-    print "   -h, --help                     - print help"
-    print "   -v, --verbose                  - be verbose"
-    print
+    print()
+    print("pwgen [option]... DOMAIN")
+    print()
+    print("Options:")
+    print("   -a, --alphabet string          - alphabet for generating the password")
+    print("                                    (alpha, numeric, alphanumeric, any)")
+    print("   -l, --length integer           - length of the generated password")
+    print("   -u, --username string          - username (optional)")
+    print("   -s, --seed-init integer        - initial seed")
+    print()
+    print("   -h, --help                     - print help")
+    print("   -v, --verbose                  - be verbose")
+    print()
 
 # read config
 # ------------------------------------------------------------------------------
 
 def read_config():
-    config_parser = ConfigParser.RawConfigParser()
+    config_parser = configparser.RawConfigParser()
     config_parser.read(os.path.expanduser("~/.pwgen.conf"))
     if not config_parser.has_section('PWGEN'):
         raise IOError("Error: no configuration file found.")
@@ -114,13 +114,12 @@ def generate_password():
         domain = options['domain']
 
     if options['verbose']:
-        print "Domain:", domain
+        print("Domain:", domain)
 
     key = getpass.getpass()
     password = pwgen.generate_password(seed, key, domain, length, alphabet)
-    pwgen.copy(password)
 
-    print password
+    print(password)
 
 # __main__
 # ------------------------------------------------------------------------------
@@ -134,7 +133,7 @@ def __main__():
         usage()
         return 2
     output = None
-    if not len(tail) is 1:
+    if len(tail) != 1:
         usage()
         return 1
     # the domain needs to be available before parsing the config file
@@ -169,6 +168,6 @@ def __main__():
 if __name__ == "__main__":
     try:
         sys.exit(__main__())
-    except IOError, e:
+    except IOError as e:
         sys.stderr.write('%s\n' % e)
         sys.exit(1)

@@ -15,7 +15,7 @@ pwgen_la_LDFLAGS  = -avoid-version
 pwgen_la_LDFLAGS += -module
 
 ## compile python files
-pkgpython_PYTHON = __init__.py pyperclip.py
+pkgpython_PYTHON = __init__.py
 
 ## clean python files
 clean-local:

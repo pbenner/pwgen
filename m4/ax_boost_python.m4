@@ -16,9 +16,9 @@ dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 AC_DEFUN([AX_BOOST_PYTHON],
 [
-AC_CHECK_LIB(boost_python-gcc-mt, main, BOOST_PYTHON_LIB="-lboost_python-gcc-mt",
-  [AC_CHECK_LIB(boost_python-mt, main, BOOST_PYTHON_LIB="-lboost_python-mt",
-    [AC_CHECK_LIB(boost_python, main, BOOST_PYTHON_LIB="-lboost_python",
+AC_CHECK_LIB(boost_python39-gcc-mt, main, BOOST_PYTHON_LIB="-lboost_python39-gcc-mt",
+  [AC_CHECK_LIB(boost_python39-mt, main, BOOST_PYTHON_LIB="-lboost_python39-mt",
+    [AC_CHECK_LIB(boost_python39, main, BOOST_PYTHON_LIB="-lboost_python39",
       [$2],[${PYTHON_LDFLAGS}])],
     [${PYTHON_LDFLAGS}])],
   [${PYTHON_LDFLAGS}])
